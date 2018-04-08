@@ -5,7 +5,6 @@ from typing import Union
 
 import boto3
 
-from . import LOGGER_PREFIX
 from .entities import User
 
 __author__ = "Giuseppe Chiesa"
@@ -23,7 +22,7 @@ class CognitoUserPassAuthException(Exception):
 
 class CognitoUserPassAuth(object):
     def __init__(self, client_id):
-        self.logger = logging.getLogger(f'{LOGGER_PREFIX}{self.__class__.__name__}')
+        self.logger = logging.getLogger(self.__class__.__name__)
         self._client = boto3.client('cognito-idp')
         """ :type : pyboto3.cognitoidentityprovider """
         self._client_id = client_id
