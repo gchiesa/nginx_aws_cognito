@@ -1,2 +1,4 @@
 aws --region=eu-west-1 cognito-idp admin-update-user-attributes --user-pool-id 'eu-west-1_aaabbbccc' \
     --username gc_api_consumer --user-attributes Name=custom:property,Value=Y
+
+curl -vv -H 'X-AWS-Cognito-Username: user' -H 'X-AWS-Cognito-Password: password' http://localhost:9988/userpass

@@ -16,9 +16,6 @@ __email__ = "mail@giuseppechiesa.it"
 __status__ = "PerpetualBeta"
 
 
-
-
-
 class Authenticator(object):
     def __init__(self, cache_obj: ExpiringDict, client_id: str = '', user_salt: str = ''):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -36,8 +33,7 @@ class Authenticator(object):
     def authenticate(self, username: str, password: str) -> Union[None, User]:
         cached_user = self._get_from_cache(username)
         if cached_user:
-            self.logger.debug(f'found user: {username} in cache')
+            self.logger.info(f'Found user: {username} in cache')
             if cached_user == User(username, password, self._user_salt):
                 return cached_user
         return self._cognito_auth(username, password)
-
