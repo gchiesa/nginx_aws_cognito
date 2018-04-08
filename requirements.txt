@@ -1,5 +1,5 @@
+pyyaml
 boto3
 pyboto3
 expiringdict
 sanic
-
