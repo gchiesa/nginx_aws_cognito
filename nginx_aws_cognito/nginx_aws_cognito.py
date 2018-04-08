@@ -12,7 +12,7 @@ from sanic.request import Request
 
 from .auth import Authenticator
 from .config import Config
-
+from http_basic_auth import parse_header
 
 def allocate_data_cache(max_entries: int, max_ttl: int) -> ExpiringDict:
     return ExpiringDict(max_entries, max_ttl)
@@ -31,16 +31,21 @@ async def resetcache(request: Request):
     return response.json({'message': 'cache reset'}, status=200)
 
 
-@app.route('/userpass')
+@app.route('/basicauth')
 async def userpass(request: Request):
     """
     X-AWS-Cognito-Username
     X-AWS-Cognito-Password
+    X-AWS-Cognito-BasicAuth
     :param request:
     :return:
     """
     username = request.headers.get('X-AWS-Cognito-Username', None)
     password = request.headers.get('X-AWS-Cognito-Password', None)
+
+    if request.headers.get('X-AWS-Cognito-BasicAuth', None):
+        username, password = parse_header(request.headers['X-AWS-Cognito-BasicAuth'])
+
     if not username or not password:
         return response.json({'message': 'username or password not set'},
                              status=400)

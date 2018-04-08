@@ -3,3 +3,4 @@ boto3
 pyboto3
 expiringdict
 sanic
+http-basic-auth
