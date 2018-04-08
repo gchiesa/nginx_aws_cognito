@@ -20,7 +20,7 @@ def allocate_data_cache(max_entries: int, max_ttl: int) -> ExpiringDict:
 
 app = Sanic()
 
-config = Config(os.environ.get('NGINX_AWS_COGNIGO_CONFIG', None))
+config = Config(os.environ.get('NGINX_AWS_COGNITO_CONFIG', None))
 app.nginx_data_cache = allocate_data_cache(config.max_cache_entries, config.max_cache_ttl)
 app.nginx_user_salt = uuid.uuid4().hex
 
@@ -44,7 +44,7 @@ async def userpass(request: Request):
     if not username or not password:
         return response.json({'message': 'username or password not set'},
                              status=400)
-    authenticator = Authenticator(request.app.nginx_data_cache, client_id='4q80akfi6274dobq150th3aath',
+    authenticator = Authenticator(request.app.nginx_data_cache, client_id=config.client_id,
                                   user_salt=app.nginx_user_salt)
     user = authenticator.authenticate(username, password)
     if not user:
@@ -59,4 +59,4 @@ async def userpass(request: Request):
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=9988, workers=4)
+    app.run(host=config.host, port=config.port, workers=config.workers)

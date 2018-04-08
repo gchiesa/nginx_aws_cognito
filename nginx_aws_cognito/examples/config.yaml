@@ -1,0 +1,7 @@
+---
+# host: 127.0.0.1
+# port: 9988
+# workers: 2
+# max_cache_entries: 100
+# max_cache_ttl: 3600
+client_id: 4q80akfi6274dobq150th3aath

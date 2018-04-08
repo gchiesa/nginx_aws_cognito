@@ -20,6 +20,7 @@ class Defaults(object):
     DEFAULT_HOST = '127.0.0.1'
     DEFAULT_PORT = '9988'
     DEFAULT_WORKERS = multiprocessing.cpu_count()
+    DEFAULT_CLIENT_ID = ''
 
 
 class ConfigException(Exception):
@@ -35,6 +36,7 @@ class Config(object):
         self.workers = None
         self.max_cache_entries = None
         self.max_cache_ttl = None
+        self.client_id = None
         self._load()
 
     def _load(self):
@@ -46,10 +48,11 @@ class Config(object):
             with open(os.path.expanduser(self._config_file), 'r') as fh:
                 self._config = yaml.load(fh.read())
         self.host = self.config.get('host', Defaults.DEFAULT_HOST)
-        self.port = self.config.get('port', Defaults.DEFAULT_PORT)
-        self.workers = self.config.get('workers', Defaults.DEFAULT_WORKERS)
+        self.port = int(self.config.get('port', Defaults.DEFAULT_PORT))
+        self.workers = int(self.config.get('workers', Defaults.DEFAULT_WORKERS))
         self.max_cache_entries = int(self.config.get('max_cache_entries', Defaults.DEFAULT_MAX_CACHE_ENTRIES))
         self.max_cache_ttl = int(self.config.get('max_cache_ttl', Defaults.DEFAULT_MAX_CACHE_TTL))
+        self.client_id = self.config.get('client_id', Defaults.DEFAULT_CLIENT_ID)
         return self
 
     @property
