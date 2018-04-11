@@ -2,6 +2,7 @@
 
 import multiprocessing
 import os
+from typing import Dict
 
 import yaml
 
@@ -13,6 +14,30 @@ __maintainer__ = "Giuseppe Chiesa"
 __email__ = "mail@giuseppechiesa.it"
 __status__ = "PerpetualBeta"
 
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'default': {
+            'level': 'INFO',
+            'formatter': 'standard',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'nginx_aws_cognito': {
+            'handlers': ['default'],
+            'level': 'INFO',
+            'propagate': True
+        },
+    }
+}
+
 
 class Defaults(object):
     DEFAULT_MAX_CACHE_ENTRIES = 10000
@@ -21,6 +46,9 @@ class Defaults(object):
     DEFAULT_PORT = '9988'
     DEFAULT_WORKERS = multiprocessing.cpu_count()
     DEFAULT_CLIENT_ID = ''
+    DEFAULT_REGION = 'eu-west-1'
+    DEFAULT_USERPOOL_ID = ''
+    DEFAULT_LOAD_PROFILE = False
 
 
 class ConfigException(Exception):
@@ -28,15 +56,18 @@ class ConfigException(Exception):
 
 
 class Config(object):
-    def __init__(self, config_yaml_file: str = None):
+    def __init__(self, config_yaml_file: str = None) -> None:
         self._config_file = config_yaml_file
-        self._config = {}
+        self._config: Dict = {}
         self.host = None
         self.port = None
         self.workers = None
         self.max_cache_entries = None
         self.max_cache_ttl = None
         self.client_id = None
+        self.userpool_id = None
+        self.region = None
+        self.load_profile = None
         self._load()
 
     def _load(self):
@@ -53,8 +84,12 @@ class Config(object):
         self.max_cache_entries = int(self.config.get('max_cache_entries', Defaults.DEFAULT_MAX_CACHE_ENTRIES))
         self.max_cache_ttl = int(self.config.get('max_cache_ttl', Defaults.DEFAULT_MAX_CACHE_TTL))
         self.client_id = self.config.get('client_id', Defaults.DEFAULT_CLIENT_ID)
+        self.userpool_id = self.config.get('userpool_id', Defaults.DEFAULT_USERPOOL_ID)
+        self.region = self.config.get('region', Defaults.DEFAULT_REGION)
+        self.load_profile = self.config.get('load_profile', Defaults.DEFAULT_LOAD_PROFILE)
         return self
 
     @property
     def config(self)-> dict:
         return self._config
+

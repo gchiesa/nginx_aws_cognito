@@ -4,3 +4,5 @@ pyboto3
 expiringdict
 sanic
 http-basic-auth
+requests
+python-jose
