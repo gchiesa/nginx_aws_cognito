@@ -7,7 +7,6 @@ RUN pip install dumb-init
 
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 RUN yum -y install python36u python36u-devel python36u-pip
-# RUN pip3.6 install --upgrade pip setuptools distribute
 
 RUN mkdir -p /etc/nginx/ssl
 WORKDIR /etc/nginx/ssl
