@@ -1,0 +1,28 @@
+version: "3.2"
+services:
+
+  nginx-sanic:
+    build: ./
+    ports:
+      - "8443:443"
+    env_file:
+      - env_config
+    networks:
+      - base
+    volumes:
+      - type: bind
+        source: ./nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+      - type: bind
+        source: ./supervisor/services.ini
+        target: /etc/supervisord.d/services.ini
+      - type: bind
+        source: ./../dist
+        target: /opt/dist
+      - type: bind
+        source: ./sanic/sanic.yml
+        target: /opt/sanic.yml
+    command: /usr/bin/supervisord -n
+
+networks:
+  base:

@@ -102,3 +102,7 @@ ENV/
 .mypy_cache/
 
 .idea
+
+# pytest
+report.html
+env_config
