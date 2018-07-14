@@ -2,9 +2,8 @@
 
 import multiprocessing
 import os
-from typing import Dict
-
 import yaml
+from typing import Dict
 
 __author__ = "Giuseppe Chiesa"
 __copyright__ = "Copyright 2017, Giuseppe Chiesa"
