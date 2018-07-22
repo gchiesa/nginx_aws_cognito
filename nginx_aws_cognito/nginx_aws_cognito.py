@@ -44,14 +44,20 @@ app.cognito_jwt_public_key_ring = get_jwt_public_keys(config.region, config.user
 
 
 def access_token(request: Request):
-    username = request.form.get('username', None)
-    password = request.form.get('password', None)
-    if not request.form.get('grant_type', '') == 'password':
+    logger = logging.getLogger(__appname__)
+    username = request.json.get('username', None)
+    password = request.json.get('password', None)
+    if request.args.get('username', None):
+        username = request.args.get('username', None)
+    if request.args.get('password', None):
+        password = request.args.get('password', None)
+    if not request.args.get('grant_type', '') == 'password':
         return response.json({'message': 'grant type not supported'},
                              status=400)
     if not username or not password:
         return response.json({'message': 'username or password not set'},
                              status=400)
+    logger.info(f'Processing access token for username: {username}')
     authenticator = Authenticator(request.app.nginx_user_cache,
                                   client_id=config.client_id,
                                   user_salt=app.nginx_user_salt)
@@ -76,17 +82,23 @@ def access_token(request: Request):
 
 
 def refresh_token(request: Request):
-    refresh_token = request.form.get('refresh_token', None)
-    if not refresh_token:
+    logger = logging.getLogger(__appname__)
+    token = request.json.get('refresh_token', None)
+    # logger.info('json content: {}'.format(request.json))
+    # logger.info('args: {}'.format(request.args))
+    if request.args.get('refresh_token', None):
+        token = request.args.get('refresh_token', None)
+    if not token:
         return response.json({'message': 'refresh token not set'},
-                             status=400)
-    if not request.form.get('grant_type', '') == 'refresh_token':
+                             status=401)
+    if not request.args.get('grant_type', '') == 'refresh_token':
         return response.json({'message': 'grant type not supported'},
-                             status=400)
+                             status=401)
+    logger.info('Processing access token')
     authenticator = Authenticator(request.app.nginx_user_cache,
                                   client_id=config.client_id,
                                   user_salt=app.nginx_user_salt)
-    user = authenticator.refresh_token(refresh_token)
+    user = authenticator.refresh_token(token)
     if not user:
         return response.json({'message': 'authentication failed'}, status=401)
     request.app.nginx_user_cache[user.username] = user
@@ -152,14 +164,15 @@ async def token(request: Request):
     :return:
     """
     logger = logging.getLogger(f'{__appname__}.token')
+    # logger.info('request: {h}, {f}, {j}'.format(h=request.headers, f=request.form, j=request.json))
     grant_types = {
         'password': access_token,
         'refresh_token': refresh_token
     }
-    if request.form.get('grant_type', None) not in grant_types.keys():
+    if request.args.get('grant_type', None) not in grant_types.keys():
         return response.json({'message': 'grant type not supported'},
                              status=400)
-    return grant_types[request.form.get('grant_type')](request)
+    return grant_types[request.args.get('grant_type')](request)
 
 
 @app.route('/verify')
@@ -167,7 +180,7 @@ async def bearer(request: Request):
     access_token_bearer = request.headers.get('Authorization', None)
     if not access_token_bearer:
         return response.json({'message': 'access token not provided'},
-                             status=400)
+                             status=401)
     authenticator = Authenticator(request.app.nginx_user_cache,
                                   client_id=config.client_id,
                                   user_salt=app.nginx_user_salt)
